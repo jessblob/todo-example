@@ -1,54 +1,41 @@
-import Form from "./Components/Form"
-import { useState } from "react"
-import Person from './Components/Person'
-import styled from "styled-components"
-import { Header } from "./Styles/Styles"
 
+import { useState, useEffect } from "react";
+import "./App.css";
 
 const App = () => {
-  const [persons, setPersons] = useState([])
-  const [nameInput, setNameInput] = useState('')
-  const [ageInput, setAgeInput] = useState('')
+  const [meal, setMeal] = useState({});
 
-  const removeHandler = (index) => {
-    let newArr = [...persons]
-    newArr.splice(index, 1)
-    setPersons(newArr)
-  }
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    setPersons([...persons, {name: nameInput, age: ageInput, finished: false}])
-    setAgeInput('')
-    setNameInput('')
-  }
-  const completed = (index) => {
-    let items = [...persons]
-    let update = items[index]
-    update.finished = !update.finished
-    setPersons(items)
-  }
-  return (
-    <div>
+  const handler = async () => {
+    try {
+      const response = await fetch("https://www.themealdb.com/api/json/v1/1/random.php");
+      const data = await response.json();
+      setMeal(data.meals[0]);
+    } catch (error) {
+      console.error("Error fetching meal:", error);
+    }
+  };
 
-      <Header id="heading">my form</Header>
-      <Form id='form'
-        handleSubmit={handleSubmit} 
-        nameInput={nameInput} 
-        setNameInput={setNameInput}
-        ageInput={ageInput}
-        setAgeInput={setAgeInput}
-      />
-      {persons.map((person, index) => {
-        return <Person 
-          key={index}
-          removeHandler={() => removeHandler(index)} 
-          name={person.name} 
-          age={person.age}
-          completed={() => completed(index)}
-          finished={person.finished}
-            />
-      })}
+  useEffect(() => {
+    handler();
+  }, []);
+
+  return (<body>
+    <div class = "whole">
+      <div class = "container">
+      <h1 class = "title">Random Meals</h1>
+     
+      <button class = "button" onClick={handler}>Click</button>
+      </div>
+      <div class = "meal">
+        <h2 >{meal.strMeal}</h2>
+        <h2>CATEGORY: {meal.strCategory}</h2>
+        <h2>AREA: {meal.strArea}</h2>
+        <p>INSTRUCTIONS: <p></p> {meal.strInstructions}</p>
+        <img  src={meal.strMealThumb} alt={meal.strMeal} />
+      </div>
     </div>
-  )
-}
-export default App
+    </body>
+  );
+};
+
+export default App;
